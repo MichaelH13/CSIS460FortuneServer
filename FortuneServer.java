@@ -22,14 +22,11 @@ public class FortuneServer
       while (true)
       {
 
-         boolean fortuned = false;
-
          if (serverSocket == null)
          {
             try
             {
                serverSocket = new ServerSocket(8017);
-               System.out.println("Waiting for connection.....");
             }
             catch (IOException e)
             {
@@ -62,32 +59,30 @@ public class FortuneServer
                         "fortune.txt")));
                pb.start();
 
-               while (!fortuned)
+               while (f == null)
                {
-                  // Display message from Client and echo it back.
-                  if ((inputLine = in.readLine()) != null)
+                  f = new File("fortune.txt");
+
+                  fileReader = new Scanner(f);
+                  inputLine = "";
+
+                  while (fileReader.hasNextLine())
                   {
-                     if (inputLine.equals("logout"))
-                     {
-                        break;
-                     }
-                     f = new File("fortune.txt");
-
-                     fileReader = new Scanner(f);
-                     inputLine = "";
-
-                     while (fileReader.hasNext())
-                     {
-                        inputLine += fileReader.next() + " ";
-                     }
-                     System.out.println(inputLine);
+                     inputLine += fileReader.nextLine()
+                              + System.lineSeparator();
+                  }
+                  if (!inputLine.equals(""))
+                  {
                      out.println(inputLine);
                      out.flush();
-
-                     fortuned = true;
+                  }
+                  else
+                  {
+                     f = null;
+                     fileReader.close();
+                     fileReader = null;
                   }
                }
-               fortuned = false;
 
                out.close();
                in.close();
@@ -104,7 +99,6 @@ public class FortuneServer
 
                if (f != null)
                {
-                  // f.delete();
                   f = null;
                }
             }
