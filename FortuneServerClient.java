@@ -23,7 +23,6 @@ public class FortuneServerClient
 
       try
       {
-         // echoSocket = new Socket("taranis", 7);
          echoSocket = new Socket(serverHostname, 8017);
          out = new PrintWriter(echoSocket.getOutputStream(), true);
          in = new BufferedReader(new InputStreamReader(
@@ -54,10 +53,8 @@ public class FortuneServerClient
          {
             out.println(userInput);
             out.flush();
-            if (!(userInput == null) && userInput.equals("logout"))
-               break;
             System.out.println("Server> " + in.readLine());
-            System.out.print("Client> ");
+            break;
          }
 
       }

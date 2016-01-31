@@ -71,25 +71,16 @@ public class FortuneServer
                      {
                         break;
                      }
-                     // System.out.println("Client> " + inputLine);
                      f = new File("fortune.txt");
-                     System.out.println("f.exists(): " + f.exists());
-                     System.out.println("f.length(): " + f.length());
-                     System.out.println("f.canRead(): " + f.canRead());
 
                      fileReader = new Scanner(f);
-                     System.out.println("Exception: "
-                              + fileReader.ioException());
                      inputLine = "";
-                     System.out.println("fileReader.hasNextLine(): "
-                              + fileReader.hasNextLine());
 
                      while (fileReader.hasNext())
                      {
                         inputLine += fileReader.next() + " ";
                      }
-
-                     System.out.println("inputLine: " + inputLine);
+                     System.out.println(inputLine);
                      out.println(inputLine);
                      out.flush();
 
