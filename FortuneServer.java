@@ -13,65 +13,111 @@ public class FortuneServer
    {
       ServerSocket serverSocket = null;
       ProcessBuilder pb = new ProcessBuilder();
+      File f = null;
 
-      try
-      {
-         serverSocket = new ServerSocket(10007);
-      }
-      catch (IOException e)
-      {
-         System.err.println("Could not listen on port: 10007.");
-         System.exit(1);
-      }
-
+      pb.command("/usr/local/bin/fortune");
+      pb.redirectOutput(ProcessBuilder.Redirect.to(new File("fortune.txt")));
       Socket clientSocket = null;
-      System.out.println("Waiting for connection.....");
-
-      try
-      {
-         clientSocket = serverSocket.accept();
-      }
-      catch (IOException e)
-      {
-         // ignore, try again shortly.
-      }
-
-      // System.out.println("Connection successful");
-      // System.out.println("Waiting for input.....");
-
-      PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
-      BufferedReader in = new BufferedReader(new InputStreamReader(
-               clientSocket.getInputStream()));
-
-      String inputLine = "";
-      File f = new File("fortune.txt");
-      Scanner fileReader;
 
       while (true)
       {
-         // Display message from Client and echo it back.
-         if ((inputLine = in.readLine()) != null)
-         {
-            // System.out.println("Client> " + inputLine);
-            pb.command("/usr/local/bin/fortune");
-            pb.redirectOutput(ProcessBuilder.Redirect.to(f));
-            pb.start();
-            fileReader = new Scanner(f);
-            inputLine = "";
 
-            while (fileReader.hasNextLine())
+         boolean fortuned = false;
+
+         if (serverSocket == null)
+         {
+            try
             {
-               inputLine += fileReader.nextLine() + " ";
+               serverSocket = new ServerSocket(8017);
+               System.out.println("Waiting for connection.....");
             }
-            out.println(inputLine);
-            out.flush();
-            break;
+            catch (IOException e)
+            {
+               System.err.println("Could not listen on port: 8017.");
+               System.exit(1);
+            }
+         }
+         else if (clientSocket == null)
+         {
+            try
+            {
+               clientSocket = serverSocket.accept();
+            }
+            catch (IOException e)
+            {
+               clientSocket = null;
+            }
+            if (clientSocket != null)
+            {
+               PrintWriter out = new PrintWriter(
+                        clientSocket.getOutputStream(), true);
+               BufferedReader in = new BufferedReader(new InputStreamReader(
+                        clientSocket.getInputStream()));
+
+               String inputLine = "";
+               Scanner fileReader = null;
+               pb = new ProcessBuilder();
+               pb.command("/usr/local/bin/fortune");
+               pb.redirectOutput(ProcessBuilder.Redirect.to(new File(
+                        "fortune.txt")));
+               pb.start();
+
+               while (!fortuned)
+               {
+                  // Display message from Client and echo it back.
+                  if ((inputLine = in.readLine()) != null)
+                  {
+                     if (inputLine.equals("logout"))
+                     {
+                        break;
+                     }
+                     // System.out.println("Client> " + inputLine);
+                     f = new File("fortune.txt");
+                     System.out.println("f.exists(): " + f.exists());
+                     System.out.println("f.length(): " + f.length());
+                     System.out.println("f.canRead(): " + f.canRead());
+
+                     fileReader = new Scanner(f);
+                     System.out.println("Exception: "
+                              + fileReader.ioException());
+                     inputLine = "";
+                     System.out.println("fileReader.hasNextLine(): "
+                              + fileReader.hasNextLine());
+
+                     while (fileReader.hasNext())
+                     {
+                        inputLine += fileReader.next() + " ";
+                     }
+
+                     System.out.println("inputLine: " + inputLine);
+                     out.println(inputLine);
+                     out.flush();
+
+                     fortuned = true;
+                  }
+               }
+               fortuned = false;
+
+               out.close();
+               in.close();
+               clientSocket.close();
+               clientSocket = null;
+               serverSocket.close();
+               serverSocket = null;
+
+               if (fileReader != null)
+               {
+                  fileReader.close();
+                  fileReader = null;
+               }
+
+               if (f != null)
+               {
+                  // f.delete();
+                  f = null;
+               }
+            }
          }
       }
-
-      out.close();
-      in.close();
-      clientSocket.close();
-      serverSocket.close();
    }
 }

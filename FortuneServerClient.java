@@ -15,7 +15,7 @@ public class FortuneServerClient
       if (args.length > 0)
          serverHostname = args[0];
       System.out.println("Attemping to connect to host " + serverHostname
-               + " on port 10007.");
+               + " on port 8017.");
 
       Socket echoSocket = null;
       PrintWriter out = null;
@@ -24,7 +24,7 @@ public class FortuneServerClient
       try
       {
          // echoSocket = new Socket("taranis", 7);
-         echoSocket = new Socket(serverHostname, 10007);
+         echoSocket = new Socket(serverHostname, 8017);
          out = new PrintWriter(echoSocket.getOutputStream(), true);
          in = new BufferedReader(new InputStreamReader(
                   echoSocket.getInputStream()));
@@ -44,7 +44,6 @@ public class FortuneServerClient
       BufferedReader stdIn = new BufferedReader(
                new InputStreamReader(System.in));
       String userInput = "";
-      String serverInput = "";
 
       System.out.print("Client> ");
 
@@ -55,11 +54,9 @@ public class FortuneServerClient
          {
             out.println(userInput);
             out.flush();
-            System.out.println("Server> " + in.readLine());
-
             if (!(userInput == null) && userInput.equals("logout"))
                break;
-
+            System.out.println("Server> " + in.readLine());
             System.out.print("Client> ");
          }
 
